@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.junit.Test;
 
 public class TestHmmModel {
-	//@Test
+	@Test
 	public void testReadData() throws IOException {
 		//String dataFile = "src/main/resources/Trainset-POS-1/100276.seg.pos";
 		String dataFile = "src/main/resources/Trainset-POS-1";

@@ -3,14 +3,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-                <groupId>com.github.xtutran</groupId>
-                <artifactId>hmm-pos-tagger</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-        </parent>
+		<groupId>com.github.xtutran</groupId>
+		<artifactId>hmm-pos-tagger</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
 
-	<groupId>com.github.xtutran</groupId>
 	<artifactId>hmm-supervised-model</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 
 	<dependencies>
 		<dependency>
