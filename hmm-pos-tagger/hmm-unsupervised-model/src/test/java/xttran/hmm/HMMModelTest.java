@@ -1,7 +1,6 @@
 package xttran.hmm;
 import org.junit.Test;
 
-import xttran.hmm.HMMModel;
 import xttran.hmm.util.HMMUtil;
 
 
