@@ -1,56 +1,55 @@
 package xttran.hmm;
 
-
 public class Tag {
 	private double probability;
 	private double temp;
 	private String path;
 	public static final String SEPARATOR = "/";
-	
+
 	public Tag(double probability, double temp, String path) {
-	  this.probability = probability;
-	  this.setTemp(temp);
-	  this.path = path;
-  }
+		this.probability = probability;
+		this.setTemp(temp);
+		this.path = path;
+	}
 
 	public double getProbability() {
-  	return probability;
-  }
-	
+		return probability;
+	}
+
 	public void setProbability(double totalProb) {
-  	this.probability = totalProb;
-  }
-	
+		this.probability = totalProb;
+	}
+
 	public String getPath() {
-  	return path;
-  }
-	
+		return path;
+	}
+
 	public void setPath(String path) {
-  	this.path = path;
-  }
-	
-	public static String updatePath(String ... paths) {
+		this.path = path;
+	}
+
+	public static String updatePath(String... paths) {
 		StringBuilder builder = new StringBuilder(16 * (paths.length + 1));
 		builder.append(paths[0]);
 		builder.append(SEPARATOR);
 		builder.append(paths[1]);
 		return builder.toString();
 	}
-	
+
 	public String toString(String[] observations) {
-		if(observations == null || observations.length == 0 || path == null) {
+		if (observations == null || observations.length == 0 || path == null) {
 			return null;
 		}
-		
+
 		String[] states = path.split(SEPARATOR);
-		if(states.length == 0) {
+		if (states.length == 0) {
 			System.err.println("[ERROR] in decode algorithm");
 			return null;
 		}
-		
-		//List<String> result = new ArrayList<String>();
+
+		// List<String> result = new ArrayList<String>();
 		StringBuilder builder = new StringBuilder(16 * observations.length * 2);
-		for(int i = 0; i < observations.length; i++) {
+		for (int i = 0; i < observations.length; i++) {
 			builder.append(updatePath(observations[i], states[i]));
 			builder.append(" ");
 		}
@@ -58,10 +57,10 @@ public class Tag {
 	}
 
 	public void setTemp(double temp) {
-	  this.temp = temp;
-  }
+		this.temp = temp;
+	}
 
 	public double getTemp() {
-	  return temp;
-  }
+		return temp;
+	}
 }

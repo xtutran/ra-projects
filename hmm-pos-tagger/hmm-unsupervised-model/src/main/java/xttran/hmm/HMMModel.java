@@ -12,7 +12,7 @@ import java.util.Properties;
 import xttran.hmm.util.HMMUtil;
 
 public class HMMModel {
-	private int numOfStates; //number of states
+	private int numOfStates; // number of states
 	private String[] states;
 
 	private int numOfWords;
@@ -24,9 +24,9 @@ public class HMMModel {
 	private double[] startProbs;
 
 	public static enum MODEL {
-		STATES,WORDS,START,TRANS,EMMIS
+		STATES, WORDS, START, TRANS, EMMIS
 	}
-	
+
 	public static final String COLUMN_SEP = ",";
 	public static final String ROW_SEP = ";";
 
@@ -39,14 +39,14 @@ public class HMMModel {
 		return INSTANCE;
 	}
 
-	//Initially use random transition and emission matrices
+	// Initially use random transition and emission matrices
 	public void initialize(String[] states, String[] bagOfWords) {
 
-		if(states == null || states.length == 0) {
+		if (states == null || states.length == 0) {
 			throw new IllegalArgumentException("HMM: States must be not null or empty");
 		}
 
-		if(bagOfWords == null || bagOfWords.length == 0) {
+		if (bagOfWords == null || bagOfWords.length == 0) {
 			throw new IllegalArgumentException("HMM: Bag of words must be not null or empty");
 		}
 
@@ -57,7 +57,7 @@ public class HMMModel {
 		this.numOfWords = bagOfWords.length;
 
 		this.dict = new HashMap<String, Integer>();
-		for(int i = 0; i < this.numOfWords; i++) {
+		for (int i = 0; i < this.numOfWords; i++) {
 			this.dict.put(bagOfWords[i], i);
 		}
 
@@ -73,26 +73,28 @@ public class HMMModel {
 
 	/**
 	 * Store model into file
+	 * 
 	 * @param filePath
 	 */
 	public void saveToFile(String filePath) {
-		//TODO: save model after train to file
+		// TODO: save model after train to file
 		Properties property = new Properties();
 		property.setProperty(MODEL.STATES.name(), HMMUtil.join(states, COLUMN_SEP));
 		property.setProperty(MODEL.WORDS.name(), HMMUtil.join(bagOfWords, COLUMN_SEP));
 		property.setProperty(MODEL.START.name(), HMMUtil.join(startProbs, COLUMN_SEP));
 		property.setProperty(MODEL.TRANS.name(), HMMUtil.join(transitionProbs, COLUMN_SEP, ROW_SEP));
 		property.setProperty(MODEL.EMMIS.name(), HMMUtil.join(emissionProbs, COLUMN_SEP, ROW_SEP));
-		
+
 		try {
-	    property.store(new BufferedWriter(new FileWriter(filePath)), "HMM model");
-    } catch (IOException e) {
-	    e.printStackTrace();
-    }
+			property.store(new BufferedWriter(new FileWriter(filePath)), "HMM model");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * Load model from existing file
+	 * 
 	 * @param filePath
 	 */
 	public void loadFromFile(String filePath) {
@@ -106,7 +108,7 @@ public class HMMModel {
 
 			String[] startsProp = property.getProperty(MODEL.START.name()).split(COLUMN_SEP);
 			double[] starts = new double[startsProp.length];
-			for(int i = 0; i < startsProp.length; i++) {
+			for (int i = 0; i < startsProp.length; i++) {
 				starts[i] = Double.parseDouble(startsProp[i]);
 			}
 
@@ -125,13 +127,15 @@ public class HMMModel {
 
 	/**
 	 * Load model from internal attributes.
+	 * 
 	 * @param states
 	 * @param bagOfWords
 	 * @param transitionProbs
 	 * @param emissionProbs
 	 * @param startProbs
 	 */
-	private void load(String[] states, String[] bagOfWords, double[][] transitionProbs, double[][] emissionProbs, double[] startProbs) {
+	private void load(String[] states, String[] bagOfWords, double[][] transitionProbs, double[][] emissionProbs,
+			double[] startProbs) {
 		initialize(states, bagOfWords);
 		setProbabilities(transitionProbs, emissionProbs, startProbs);
 	}
@@ -149,7 +153,7 @@ public class HMMModel {
 	}
 
 	public void setStartProbs(double[] startProbs) {
-		if(this.numOfStates != startProbs.length)
+		if (this.numOfStates != startProbs.length)
 			throw new IllegalArgumentException("HMM: start probability matrix must have rows size = number of states");
 
 		this.startProbs = startProbs;
@@ -165,7 +169,7 @@ public class HMMModel {
 		if (transitionProbs.length != emissionProbs.length)
 			throw new IllegalArgumentException("HMM: transition matrix and emission matrix disagree");
 		for (int i = 0; i < transitionProbs.length; i++) {
-			if (this.numOfStates != transitionProbs[i].length) 
+			if (this.numOfStates != transitionProbs[i].length)
 				throw new IllegalArgumentException("HMM: transition matrix non-square");
 			if (this.numOfWords != emissionProbs[i].length)
 				throw new IllegalArgumentException("HMM: emission matrix must have columns size = number of words");
@@ -191,12 +195,12 @@ public class HMMModel {
 
 	public int getIndexOfWord(String word) {
 
-		if(word == null || word.isEmpty()) {
+		if (word == null || word.isEmpty()) {
 			return -1;
 		}
 
 		Integer index = dict.get(word);
-		if(index == null) {
+		if (index == null) {
 			return -1;
 		}
 
@@ -209,10 +213,10 @@ public class HMMModel {
 
 		System.out.println("Transition probs:");
 		System.out.println(HMMUtil.join(transitionProbs, ",", "#"));
-		//HMMUtil.print(transitionProbs);
-		
+		// HMMUtil.print(transitionProbs);
+
 		System.out.println("Emmission probs:");
-		//HMMUtil.print(emissionProbs);
+		// HMMUtil.print(emissionProbs);
 		System.out.println(HMMUtil.join(emissionProbs, ",", "#"));
 	}
 }
