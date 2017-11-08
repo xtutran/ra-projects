@@ -9,7 +9,8 @@ The program contain 5 core class (DataSet, HMMDecoder, HMMLearner, HMMModel, Tag
 
  2. Input and output
 
-  2.1. Input: Text file
+  2.1. Input: 
+ - Text file
    ```
    #The program will be read file line by line and store in two D array(String[][]) of words 
    Example:
@@ -40,27 +41,32 @@ The program contain 5 core class (DataSet, HMMDecoder, HMMLearner, HMMModel, Tag
  - Where:
  
     + If <algorithm> = -tagger , it mean the program will do full follow (from read train data -> generate hmm model -> infer tag)
-      ```bash
-    	#Command:
-		java -jar hmm-0.0.1-SNAPSHOT.jar xttran.hmm.MainApp -tagger <train data path> <test data path> <tagged output path> <number of states>
-	
+	```bash
+	#Command:
+	java -jar hmm-0.0.1-SNAPSHOT.jar xttran.hmm.MainApp -tagger <train data path> <test data path> <tagged output path> <number of states>
+
 	#Example:
-		java -jar hmm-0.0.1-SNAPSHOT.jar xttran.hmm.MainApp -tagger src/main/resources/data/train/acq/ src/main/resources/data/test/acq/0009613 demo/0009613 5
-      ```
+	java -jar hmm-0.0.1-SNAPSHOT.jar xttran.hmm.MainApp -tagger src/main/resources/data/train/acq/ src/main/resources/data/test/acq/0009613 demo/0009613 5
+	```
 
     + If <algorithm> = -em , it mean the program will generate hmm model from train data
-    		Command:
-    			java -jar hmm-0.0.1-SNAPSHOT.jar xttran.hmm.MainApp -em <train data path> <model output path> <number of states>
+    
+	```bash
+	#Command:
+	java -jar hmm-0.0.1-SNAPSHOT.jar xttran.hmm.MainApp -em <train data path> <model output path> <number of states>
 
-			Example:
-				java -jar hmm-0.0.1-SNAPSHOT.jar xttran.hmm.MainApp -em src/main/resources/data/train/acq/ HMM.tagger 5
+	#Example:
+	java -jar hmm-0.0.1-SNAPSHOT.jar xttran.hmm.MainApp -em src/main/resources/data/train/acq/ HMM.tagger 5
+	```
 
     + If <algorithm> = -viterbi , it mean the program will infer tag for new sequence based on existing HMM model
-    		Command:
-    			java -jar hmm-0.0.1-SNAPSHOT.jar xttran.hmm.MainApp -viterbi <model input path> <input path> <tagged output path>
-    			
-    		Example:
-    			java -jar hmm-0.0.1-SNAPSHOT.jar xttran.hmm.MainApp -viterbi HMM.tagger src/main/resources/data/train/acq/0000005 output-0000005 5
+    	```bash
+	#Command:
+	java -jar hmm-0.0.1-SNAPSHOT.jar xttran.hmm.MainApp -viterbi <model input path> <input path> <tagged output path>
+
+	#Example:
+	java -jar hmm-0.0.1-SNAPSHOT.jar xttran.hmm.MainApp -viterbi HMM.tagger src/main/resources/data/train/acq/0000005 output-0000005 5
+	```
     		
 4. Default parameters in EM
 ```
