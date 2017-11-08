@@ -1,4 +1,4 @@
-## Description: This program implement HMM Model/Forward-Backward/EM/Viterbi algorithms 
+## HMM Model/Forward-Backward/EM/Viterbi algorithms 
 
 Implement unsupervised hmm model based on this [paper](lecture_15_16.pdf)
 
