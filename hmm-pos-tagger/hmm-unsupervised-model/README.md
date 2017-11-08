@@ -42,7 +42,7 @@ The program contain 5 core class (DataSet, HMMDecoder, HMMLearner, HMMModel, Tag
    ```
  - Where:
  
-    + **algorithm** = -tagger , it mean the program will do full follow (from read train data -> generate hmm model -> infer tag)
+    + **algorithm** = tagger , it mean the program will do full follow (from read train data -> generate hmm model -> infer tag)
 	```bash
 	#Command:
 	java -jar hmm-0.0.1-SNAPSHOT.jar xttran.hmm.MainApp -tagger <train data path> <test data path> <tagged output path> <number of states>
