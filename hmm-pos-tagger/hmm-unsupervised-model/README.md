@@ -49,7 +49,7 @@ The program contain 5 core class (DataSet, HMMDecoder, HMMLearner, HMMModel, Tag
 	java -jar hmm-0.0.1-SNAPSHOT.jar xttran.hmm.MainApp -tagger src/main/resources/data/train/acq/ src/main/resources/data/test/acq/0009613 demo/0009613 5
 	```
 
-    + If <algorithm> = -em , it mean the program will generate hmm model from train data
+    + **algorithm** = em , it mean the program will generate hmm model from train data
     
 	```bash
 	#Command:
@@ -59,9 +59,9 @@ The program contain 5 core class (DataSet, HMMDecoder, HMMLearner, HMMModel, Tag
 	java -jar hmm-0.0.1-SNAPSHOT.jar xttran.hmm.MainApp -em src/main/resources/data/train/acq/ HMM.tagger 5
 	```
 
-    + If <algorithm> = -viterbi , it mean the program will infer tag for new sequence based on existing HMM model
-    	```bash
-	#Command:
+    + **algorithm** = viterbi , it mean the program will infer tag for new sequence based on existing HMM model
+    	
+	```bash
 	java -jar hmm-0.0.1-SNAPSHOT.jar xttran.hmm.MainApp -viterbi <model input path> <input path> <tagged output path>
 
 	#Example:
@@ -69,6 +69,7 @@ The program contain 5 core class (DataSet, HMMDecoder, HMMLearner, HMMModel, Tag
 	```
     		
 4. Default parameters in EM
+
 ```
 MAX_INTERATIONS = 100;
 MIN_ERROR = 0.001;
