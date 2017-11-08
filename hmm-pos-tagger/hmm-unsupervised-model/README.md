@@ -1,4 +1,6 @@
-### Description: This program implement HMM Model/Forward-Backward/EM/Viterbi algorithms
+## Description: This program implement HMM Model/Forward-Backward/EM/Viterbi algorithms 
+
+Implement unsupervised hmm model based on this [paper](lecture_15_16.pdf)
 
  1. The structure of program
 The program contain 5 core class (DataSet, HMMDecoder, HMMLearner, HMMModel, Tag) and 1 main class (MainApp)
