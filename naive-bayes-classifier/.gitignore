@@ -3,4 +3,5 @@ target/*
 .project
 .DS_Store
 .classpath
-
+*.iml
+.idea/*

@@ -3,57 +3,57 @@ package xttran.classifier.model;
 import java.util.List;
 
 public class DocumentCategory extends BagOfWord {
-	private String category;
+    private String category;
 
-	public DocumentCategory(String category) {
-		this.category = category;
-	}
+    public DocumentCategory(String category) {
+        this.category = category;
+    }
 
-	public void addWords(List<String> words) {
-		for (String word : words) {
-			increment(word);
-		}
+    public void addWords(List<String> words) {
+        for (String word : words) {
+            increment(word);
+        }
 
-		super.calculateProbability();
-	}
+        super.calculateProbability();
+    }
 
-	public double getLogLikeLiHood(List<String> unknown, ClassificationModel model) {
-		if (unknown == null || model == null) {
-			return 0;
-		}
+    public double getLogLikeLiHood(List<String> unknown, ClassificationModel model) {
+        if (unknown == null || model == null) {
+            return 0;
+        }
 
-		Double categoryProb = model.getProbability().get(category);
-		if (categoryProb == null) {
-			return 0;
-		}
+        Double categoryProb = model.getProbability().get(category);
+        if (categoryProb == null) {
+            return 0;
+        }
 
-		double logFeatureProduct = 0.0;
-		for (String word : unknown) {
-			Double prob = getProbability().get(word);
+        double logFeatureProduct = 0.0;
+        for (String word : unknown) {
+            Double prob = getProbability().get(word);
 
-			if (prob == null) {
-				prob = 0d;
-			}
+            if (prob == null) {
+                prob = 0d;
+            }
 
-			Integer features = model.getFeatures().getVocabulary().get(word);
-			if (features == null) {
-				features = 0;
-			}
+            Integer features = model.getFeatures().getVocabulary().get(word);
+            if (features == null) {
+                features = 0;
+            }
 
-			double logFeatureProb = Math.log(model.getAnpha() * model.getBeta() + 
-					features.intValue() * prob.doubleValue()) - Math.log(model.getAnpha() + features.intValue());
-			
-			logFeatureProduct += logFeatureProb;
-		}
+            double logFeatureProb = Math.log(model.getAnpha() * model.getBeta() +
+                    features.intValue() * prob.doubleValue()) - Math.log(model.getAnpha() + features.intValue());
 
-		return Math.log(categoryProb.doubleValue()) + logFeatureProduct;
-	}
+            logFeatureProduct += logFeatureProb;
+        }
 
-	public String getCategory() {
-		return category;
-	}
+        return Math.log(categoryProb.doubleValue()) + logFeatureProduct;
+    }
 
-	public void setCategory(String category) {
-		this.category = category;
-	}
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
 }
