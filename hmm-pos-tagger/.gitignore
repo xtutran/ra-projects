@@ -3,4 +3,7 @@ target/*
 .project
 .DS_Store
 .classpath
-
+.idea/*
+*.iml
+hmm-supervised-model/*.iml
+hmm-unsupervised-model/*.iml

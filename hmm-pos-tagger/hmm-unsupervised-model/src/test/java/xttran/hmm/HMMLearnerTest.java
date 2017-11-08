@@ -4,9 +4,9 @@ import org.junit.Test;
 
 public class HMMLearnerTest {
 
-	@Test
-	public void testComputeForwardProb() {
+    @Test
+    public void testComputeForwardProb() {
 
-	}
+    }
 
 }
