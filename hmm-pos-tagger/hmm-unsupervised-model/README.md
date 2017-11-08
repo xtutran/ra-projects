@@ -72,8 +72,8 @@ The program contain 5 core class (DataSet, HMMDecoder, HMMLearner, HMMModel, Tag
     		
 4. Default parameters in EM
 
-```
-MAX_INTERATIONS = 100;
-MIN_ERROR = 0.001;
-```
+   ```
+   MAX_INTERATIONS = 100;
+   MIN_ERROR = 0.001;
+   ```
   
