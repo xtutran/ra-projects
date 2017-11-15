@@ -1,4 +1,4 @@
-package com.xttran.util;
+package edu.smu.util;
 
 import org.apache.commons.io.FileUtils;
 

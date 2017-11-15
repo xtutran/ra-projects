@@ -1,7 +1,7 @@
-package com.xttran.experiment;
+package edu.smu.experiment;
 
-import com.xttran.experiment.dto.Tag;
-import com.xttran.util.StatisticUtils;
+import edu.smu.experiment.dto.Tag;
+import edu.smu.util.StatisticUtils;
 import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.TreeBidiMap;
 

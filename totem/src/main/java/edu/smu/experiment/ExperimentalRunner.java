@@ -1,7 +1,7 @@
-package com.xttran.experiment;
+package edu.smu.experiment;
 
-import com.xttran.core.Arguments;
-import com.xttran.core.ClusteringApp;
+import edu.smu.core.Arguments;
+import edu.smu.core.ClusteringApp;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 

@@ -1,4 +1,4 @@
-package com.xttran.core;
+package edu.smu.core;
 
 import org.apache.log4j.Logger;
 

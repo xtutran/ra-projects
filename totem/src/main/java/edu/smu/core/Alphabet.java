@@ -1,4 +1,4 @@
-package com.xttran.core;
+package edu.smu.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;

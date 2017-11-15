@@ -1,4 +1,4 @@
-package com.xttran.core;
+package edu.smu.core;
 
 /**
  * This class represents a single instance.

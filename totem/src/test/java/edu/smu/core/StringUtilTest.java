@@ -1,4 +1,4 @@
-package com.xttran.core;
+package edu.smu.core;
 
 import org.junit.Test;
 

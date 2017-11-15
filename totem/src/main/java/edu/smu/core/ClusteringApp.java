@@ -1,6 +1,6 @@
-package com.xttran.core;
+package edu.smu.core;
 
-import com.xttran.util.FileUtil;
+import edu.smu.util.FileUtil;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.FilenameUtils;

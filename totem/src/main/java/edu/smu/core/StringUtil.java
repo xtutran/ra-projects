@@ -1,4 +1,4 @@
-package com.xttran.core;
+package edu.smu.core;
 
 import java.util.List;
 import java.util.StringTokenizer;

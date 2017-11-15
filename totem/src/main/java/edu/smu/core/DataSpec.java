@@ -1,4 +1,4 @@
-package com.xttran.core;
+package edu.smu.core;
 
 /**
  * This class stores the specifications of a data set.

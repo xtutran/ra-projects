@@ -1,4 +1,4 @@
-package com.xttran.core;
+package edu.smu.core;
 
 import org.kohsuke.args4j.Option;
 

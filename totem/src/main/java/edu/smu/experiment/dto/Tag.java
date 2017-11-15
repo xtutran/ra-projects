@@ -1,4 +1,4 @@
-package com.xttran.experiment.dto;
+package edu.smu.experiment.dto;
 
 public class Tag implements Comparable<Tag> {
     public int clusterLabel;
