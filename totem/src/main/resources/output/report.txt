@@ -1,0 +1,5 @@
+
+Evaluation                PersonIn_PersonOut->1     Post->3                   PersonOut->7              Org->0                    PersonIn->4              
+Precision                 0.090                     0.825                     0.557                     0.773                     0.506                    
+Recall                    0.195                     0.996                     0.283                     0.518                     0.448                    
+F1                        0.123                     0.903                     0.376                     0.621                     0.475                    
