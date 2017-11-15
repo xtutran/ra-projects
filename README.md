@@ -4,3 +4,7 @@
  
 #### Research Assistant Intern, Singapore Management University ([SMU](http://www.mysmu.edu/faculty/jingjiang/group.html)), Sep 2012 to March 2013
  - [Unsupervised information extraction](totem)
+ 
+ - [Document classification](naive-bayes) - Self Research
+ 
+ - [Text pos-tagging](hmm) - Self Research
