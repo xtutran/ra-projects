@@ -1,0 +1,2 @@
+lru-cache
+django==1.11

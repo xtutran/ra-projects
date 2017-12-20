@@ -1,0 +1,11 @@
+Availability,Launch
+Battery
+Camera
+Connectivity,Comms
+Design,Body
+Display
+Hardware,Memory,Platform
+Technology,Network
+Shopping information,Misc
+Other features,Internet browsing,Multimedia,Features,Sound
+Tests

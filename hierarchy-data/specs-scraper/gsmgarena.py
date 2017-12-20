@@ -65,7 +65,7 @@ def insert_to_hbase(specs, column_family, batch):
 
 
 def main():
-    pool = happybase.ConnectionPool(size=3, host='192.168.56.101')
+    pool = happybase.ConnectionPool(size=3, host='192.168.1.240')
 
     with pool.connection() as connection:
         table = connection.table('phone_specs')

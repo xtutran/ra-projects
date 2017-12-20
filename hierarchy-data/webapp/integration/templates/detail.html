@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Phone Detail</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+          integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css"
+          integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+            integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+            crossorigin="anonymous"></script>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/specs.css' %}" type="text/css"/>
+    {% load static %}
+    <script src="{% static 'js/colResizable-1.5.min.js' %}"></script>
+    {% load static %}
+    <script src="{% static 'js/fuzzyset.js' %}"></script>
+    {% load static %}
+    <script src="{% static 'js/fuzzy.js' %}"></script>
+    {% load static %}
+    <script src="{% static 'js/quantities.js' %}"></script>
+    {% load static %}
+    <script src="{% static 'js/jquery-highlight-min1.js' %}"></script>
+    <script type="text/javascript">
+        var d3Regex = /\b([0-9]+(\.[0-9]+)?)[\s]*x[\s]*\b([0-9]+(\.[0-9]+)?)[\s]*x[\s]*\b([0-9]+(\.[0-9]+)?)[\s]*([\w]+)/g
+        var d2Regex = /\b([0-9]+(\.[0-9]+)?)[\s]* x[\s]*\b([0-9]+(\.[0-9]+)?)[\s]*([\w]+)/g;
+        var numRegex = /[+-~]?\b[0-9]+(\.[0-9]+)?\b[ ]*[\wμµ%]+[/]*[\w]*/g;
+
+        function extractNumber(str, myregexp) {
+            //var myregexp = /[+-]?\b[0-9]+(\.[0-9]+)?\b[ ][\w]+/g;
+            var match = myregexp.exec(str);
+            var res = new Array();
+            var i = 0;
+            while (match != null) {
+                res[i++] = match[0];
+                //.replace("pixels", "pixel").replace("MP", "megapixel");
+                match = myregexp.exec(str);
+            }
+            return res;
+        }
+
+        function extractAll(str, format) {
+            var d3 = extractNumber(str, d3Regex);
+            var d2 = extractNumber(str, d2Regex);
+            var d1 = extractNumber(str, numRegex);
+
+            var data = Array();
+            var tmp = "";
+            if(d3.length > 0) {
+                if(format) {
+                    for (var i = 0; i < d3.length; i++) {
+                        d3[i] = formatDimension(d3[i]);
+                    }
+                }
+                data = d3;
+                tmp = str.replace(d3Regex, "").replace(/[\(\)]/g, "").trim();
+            } else if(d2.length > 0) {
+                if(format) {
+                    for (var i = 0; i < d2.length; i++) {
+                        d2[i] = formatDimension(d2[i]);
+                    }
+                }
+                data = d2;
+                tmp = str.replace(d2Regex, "").replace(/[\(\)]/g, "").trim();
+            } else if(d1.length > 0) {
+                data = d1;
+                tmp = str.replace(numRegex, "").replace(/[\(\)]/g, "").trim();
+            } else if(format) {
+                data = [str];
+            }
+
+            if(tmp !== "" && format) {
+                var temp = extractAll(tmp);
+                if(temp.length == 0) {
+                  temp = [tmp];
+                }
+                data = data.concat(temp);
+            }
+
+            return data;
+        }
+
+        function formatDimension(str) {
+            var d3match = /\b([0-9]+(\.[0-9]+)?)[\s]*x[\s]*\b([0-9]+(\.[0-9]+)?)[\s]*x[\s]*\b([0-9]+(\.[0-9]+)?)[\s]*([\w]+)/g.exec(str);
+            var d2match = /\b([0-9]+(\.[0-9]+)?)[\s]* x[\s]*\b([0-9]+(\.[0-9]+)?)[\s]*([\w]+)/g.exec(str);
+            if (d3match != null) {
+                //console.log(str);
+                var x = parseFloat(d3match[1]);
+                var y = parseFloat(d3match[3]);
+                var z = parseFloat(d3match[5]);
+                var unit = d3match[7];
+
+                var d = [x, y, z].sort(function(a, b){return a-b});
+                return d[0] + ' x ' + d[1] + ' x ' + d[2] + ' ' + unit.trim();
+            } else if (d2match != null){
+                var x = parseFloat(d2match[1]);
+                var y = parseFloat(d2match[3]);
+                var unit = d2match[5];
+
+                var d = [x, y].sort(function(a, b){return a-b});
+                return d[0] + ' x ' + d[1] + ' ' + unit.trim();
+            }
+            return null;
+        }
+
+        function toQty(value) {
+            value = value.replace("pixels", "pixel").replace("MP", "megapixel").replace("~", "");
+            try {
+                var qty = Qty(value);
+                if(qty.toBase().numerator[0] === '<byte>') {
+                    return qty.toPrec('0.1 GB');
+                } else if(qty.numerator[0] === '<percent>'){
+                    return qty.toPrec(0.1);
+                } else {
+                    return qty.toBase();
+                }
+            } catch(e) {
+                if(e instanceof Qty.Error) {
+                } else {
+                }
+            }
+            return null;
+
+        }
+
+        function match(array1, array2) {
+            for (var i = 0; i < array1.length; i++) {
+                var qty1 = toQty(array1[i]);
+                for (var j = 0; j < array2.length; j++) {
+                    var qty2 = toQty(array2[j]);
+
+                    if(qty1 !== null && qty2 !== null && qty1.isCompatible(qty2) && qty1.eq(qty2)) {
+                        return true;
+                    }
+
+                    var a = FuzzySet();
+                    a.add(array2[j]);
+                    var match = a.get(array1[i]);
+                    if(match != null && match[0][0] >= 0.8) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function findMatches(check, col_id){
+            var result = Array();
+            var val1 = check.val();
+            var data1 = extractAll(val1, true);
+            var query = 'td[id!=\'' + col_id + '\']';
+            var matches = [];
+            $(query).each(function(i){
+                var elements = [];
+                var values = [];
+                var j = 0;
+                $(this).find("input").each(function(){
+                    var val2 = $(this).val();
+                    var data2 = extractAll(val2, true);
+
+                    if(match(data1, data2)) {
+                        //console.log(val1 + " -matched- " + val2);
+                        elements[j] = $(this);
+                        values[j] = val2;
+                        j = j + 1;
+                    }
+                });
+
+                //detect meaningless attributes
+                var uniqueArray = values.filter(function(item, pos) {
+                    return values.indexOf(item) == pos;
+                });
+
+                if(uniqueArray.length === 1 && values.length > 1) {
+
+                    var strong = check.parent().parent().parent().parent().prev();
+                    var query = strong.text().replace(":", "");
+                    var tmp = [];
+                    var k = 0;
+                    $(this).find("input").each(function(){
+                        var term = $(this).val();
+                        var a = FuzzySet();
+                        a.add(term);
+                        var m = a.get(query);
+                        if(m != null && m[0][0] >= 0.8) {
+                            tmp[k] = $(this);
+                        }
+                    });
+                    matches[i] = tmp;
+
+                } else {
+                    matches[i] = elements;
+                }
+
+            });
+            return matches;
+        }
+
+        $(document).ready(function(){
+            //extractor
+            $("input:checkbox#extractor").click(function() {
+                if($(this).is(":checked")) {
+                    $("#show-result").prop('disabled', false);
+                    var totalNumeric = 0;
+                    var totalNumericSent = 0;
+                    var totalCommon = 0;
+                    var totalCol = 0;
+                    $("td.detail-info").each(function(i){
+                        var numeric = 0;
+                        var numericSent = 0;
+                        var common = 0;
+                        var header = "<b>" + $(this).attr('id').split('###')[0] + "</b>";
+                        $(this).find("input").each(function(){
+                            var str = $(this).val();
+                            var data = extractAll(str, false);
+                            for(var j = 0; j < data.length; j++) {
+                                $(this).parent().highlight(data[j], false);
+                            }
+                            if(data.length > 0) {
+                                numeric += data.length;
+                                numericSent++;
+                            }
+                            common++;
+                        });
+                        totalNumericSent += numericSent;
+                        totalNumeric += numeric;
+                        totalCommon += common;
+                        var data = [header, common, numericSent, numeric];
+                        $("div#result table tr td:nth-child(" + (i + 2) + ")").each(function(i){
+                            if(i < data.length) {
+                                $(this).html(data[i]);
+                            }
+                        });
+                        totalCol = i;
+                    });
+                    var data = ['<b>#Average</b>', totalCommon/(totalCol + 1), totalNumericSent/(totalCol + 1), totalNumeric/(totalCol + 1)];
+                    $("div#result table tr td:nth-child(" + (totalCol + 3) + ")").each(function(i){
+                        if(i < data.length) {
+                            $(this).html(data[i]);
+                        }
+                    });
+
+                } else {
+                    $("span.highlight").each(function(){
+                        var text = $(this).text();//get span content
+                        $(this).replaceWith(text);
+                    });
+                }
+            });
+
+            // full matching
+            var col_count = 0;
+            var total_prec = 0;
+            var avg_index = 0;
+            $("td.detail-info").dblclick(function(){
+                col_count++;
+                $("#show-result").prop('disabled', false);
+                var col_id = $(this).attr('id');
+                var col_index = $(this).index();
+                var matchable = 0;
+                var matchingFound = -1;
+                $(this).find("input").each(function(i){
+                    var check = $(this);
+                    var matches = findMatches($(this), col_id);
+                    if (matches.length > 0) {
+                        //matchable++;
+                        $.each( matches, function( index, value ){
+                            matchingFound += value.length;
+                            if(value.length > 0) {
+                                check.parent().css("color", "red");
+                                $.each( value, function( i, v ) {
+                                    v.parent().css("color", "red");
+                                });
+                            }
+                        });
+                    } else {
+                        //$(this).toggle("highlight");
+                    }
+                });
+                //console.log(matchingFound + "/" + matchable);
+                var total = parseInt($("div#result table tr:nth-child(3) td:nth-child(" + (col_index + 2) + ")").text());
+                var precision = matchingFound * 100 / total;
+                total_prec += precision;
+                avg_index = col_index;
+                $("div#result table tr:nth-child(5) td:nth-child(" + (col_index + 2) + ")").text(matchingFound);
+                $("div#result table tr:nth-child(6) td:nth-child(" + (col_index + 2) + ")").text(precision + "%");
+
+            });
+            //$("div#result table tr:nth-child(6) td:nth-child(" + (avg_index + 2) + ")").text(total_prec/col_count + "%");
+
+            // select matching
+            $("input:checkbox.phone").click(function() {
+                if($(this).is(":checked")) {
+                    var val1 = $(this).val();
+                    var col_id = $(this).closest('td').attr('id');
+                    var check = $(this);
+                    var matches = findMatches($(this), col_id);
+                    if (matches.length > 0) {
+                        $.each( matches, function( index, value ){
+                            if(value.length > 0) {
+                                check.parent().css("background-color", "pink");
+                                $.each( value, function( i, v ) {
+                                    v.prop('checked', true);
+                                    v.parent().css("background-color", "pink");
+                                });
+                            }
+                        });
+                    }
+                } else {
+                    $(this).parent().css("background-color", "white");
+                    $('input:checkbox.phone').each(function () {
+                        if($(this).is(":checked")) {
+                            $(this).prop('checked', false);
+                            $(this).parent().css("background-color", "white");
+                        }
+                    });
+                }
+            });
+
+            $("#specs").colResizable({liveDrag:true});
+
+            //$('.collapse').on('show.bs.collapse', function () {
+             //   $("#package1 i.indicator").removeClass("glyphicon-plus").addClass("glyphicon-minus");
+            //});
+
+            //$('.collapse').on('hidden.bs.collapse', function () {
+            //    $("#package1 i.indicator").removeClass("glyphicon-minus").addClass("glyphicon-plus");
+            //});
+
+            $("#show-result").click(function(){
+                var btnText = $(this).attr('value');
+                if(btnText === 'Show Matching Results') {
+                    $(this).attr('value', 'Clear Matching Results');
+
+                } else {
+                    $(this).attr('value', 'Show Matching Results');
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+<div>
+    <center>
+        <form>
+            <input type="checkbox" id="extractor">Show Numeric Value
+
+            <input type="button" id="show-result" value="Show Matching Results" data-toggle="collapse"
+                   data-parent="#result" data-target=".packageDetails2"
+                   class="accordion-toggle btn btn-success btn-default" disabled>
+        </form>
+        <br/>
+        <div class="hiddenRow accordion-body collapse packageDetails2" id="result">
+            <table border="1" width="30%">
+                <tr>
+                    <td><b>Result</b></td>
+                    <td><b>Phonearena</b></td>
+                    <td><b>Gsmarena</b></td>
+                    <td><b>#Average</b></td>
+                </tr>
+                <tr>
+                    <td>Number of values</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Number of sentences contain numeric values</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Number of numeric values</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Number of matching founds</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Precision</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+    </center>
+</div>
+<br/>
+{% if phone_data %}
+<table class="table table-hover" id="specs" border="1" width="100%">
+    <tr class="danger">
+        {% for model in phone_data.keys %}
+        <th id="package1" class="accordion-toggle" data-toggle="collapse" data-parent="#specs" data-target=".packageDetails1">
+            {{ model }} <!--<i class="indicator glyphicon glyphicon-plus pull-right"></i>-->
+        </th>
+        {% endfor %}
+    </tr>
+    <tr id="main-info">
+        {% for model, specs in phone_data.items %}
+        <td class="detail-info" id="{{ model }}">
+            {% for spec in specs %}
+            <div class="s_specs_box s_box_4">
+                <h2 class="htitle">{{ spec.0 }}</h2>
+                <ul>
+                    {% for sub, value in spec.1.items %}
+                    {% if sub != '' %}
+                    <li class="s_lv_1">
+                        <strong>{{ sub }}: </strong>
+                        <ul>
+                            {% for subsub, v in value.items %}
+                            {% if subsub != '' %}
+                            <li class="s_lv_2">
+                                <strong>{{ subsub }}: </strong>
+                                <div class="hiddenRow">
+                                    <ul >
+                                        <div class="accordion-body collapse packageDetails1" id="accordion1">
+                                            <li class="s_lv_3">
+                                                <input type="checkbox" class="phone" value="{{ v.0 }}"> {{ v.0 }}
+                                            </li>
+                                        </div >
+                                    </ul>
+                                </div>
+                            </li>
+                            {% else %}
+                            {% for d in v %}
+                            <div class="hiddenRow">
+                                <div class="accordion-body collapse packageDetails1" id="accordion2">
+                                    <li class="s_lv_3">
+                                        <input type="checkbox" class="phone" value="{{ d }}"> {{ d }}
+                                    </li>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    {% else %}
+                    {% for subsub, v in value.items %}
+                    {% if v != '' %}
+                    <li class="s_lv_2"><input type="checkbox" class="phone" value="{{ v.0 }}">{{ v.0 }}</li>
+                    {% else %}
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </td>
+        {% endfor %}
+    </tr>
+</table>
+{% else %}
+<p>No phones are available.</p>
+{% endif %}
+</body>
+</html>
