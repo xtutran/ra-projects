@@ -38,8 +38,7 @@ def extract_specs(spec_url):
 
             [del_row.decompose() for del_row in del_rows]
 
-        feature_key = '{name}.{feature}'.format(name=helper.normalize(model_name.text),
-                                                feature=helper.normalize(feature.text))
+        feature_key = helper.normalize(feature.text)
         feature.decompose()
         if feature_key in specs:
             feature_key = '{0}_{1}'.format(feature_key, i)
@@ -47,33 +46,33 @@ def extract_specs(spec_url):
 
         specs[feature_key] = table
 
-    return specs
+    return helper.normalize(model_name.text), specs
 
 
-def insert_to_hbase(specs, column_family, batch):
-    for row_key, data_html in specs.iteritems():
+def insert_to_hbase(row_key, column_family, specs, batch):
+    for feature_key, data_html in specs.iteritems():
         data = pd.read_html(data_html.prettify())[0]
 
         data_row = {}
         for index, row in data.iterrows():
-            key = b'{cf}:{key}'.format(cf=column_family, key=helper.normalize(row[0]))
+            key = b'{cf}:{feature}:{key}'.format(cf=column_family, feature=feature_key, key=helper.normalize(row[0]))
             value = b'{value}'.format(value=row[1])
             data_row[key] = value
 
-        row_key = b'{row_key}'.format(row_key=row_key)
-        batch.put(row_key, data_row)
+        batch.put(bytes(row_key), data_row)
 
 
 def main():
-    pool = happybase.ConnectionPool(size=3, host='192.168.1.240')
+    # pool = happybase.ConnectionPool(size=3, host='192.168.1.240')
+    pool = happybase.ConnectionPool(size=3, host='192.168.56.101')
 
     with pool.connection() as connection:
         table = connection.table('phone_specs')
 
     with table.batch(transaction=True) as b:
         base_url = 'https://www.gsmarena.com/acer_iconia_talk_s-8306.php'
-        specs = extract_specs(base_url)
-        insert_to_hbase(specs, 'gsmgarena', b)
+        row_key, specs = extract_specs(base_url)
+        insert_to_hbase(row_key, 'gsmgarena', specs, b)
 
 
 if __name__ == '__main__':

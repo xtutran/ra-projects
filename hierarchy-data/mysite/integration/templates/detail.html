@@ -18,19 +18,18 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
             integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
             crossorigin="anonymous"></script>
-
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/specs.css' %}" type="text/css"/>
-    {% load static %}
+    <!--{% load static %}-->
     <script src="{% static 'js/colResizable-1.5.min.js' %}"></script>
-    {% load static %}
+    <!--{% load static %}-->
     <script src="{% static 'js/fuzzyset.js' %}"></script>
-    {% load static %}
+    <!--{% load static %}-->
     <script src="{% static 'js/fuzzy.js' %}"></script>
-    {% load static %}
+    <!--{% load static %}-->
     <script src="{% static 'js/quantities.js' %}"></script>
-    {% load static %}
-    <script src="{% static 'js/jquery-highlight-min1.js' %}"></script>
+    <!--{% load static %}-->
+    <script src="{% static 'js/jquery.highlight-5.js' %}"></script>
     <script type="text/javascript">
         var d3Regex = /\b([0-9]+(\.[0-9]+)?)[\s]*x[\s]*\b([0-9]+(\.[0-9]+)?)[\s]*x[\s]*\b([0-9]+(\.[0-9]+)?)[\s]*([\w]+)/g
         var d2Regex = /\b([0-9]+(\.[0-9]+)?)[\s]* x[\s]*\b([0-9]+(\.[0-9]+)?)[\s]*([\w]+)/g;
@@ -403,6 +402,8 @@
     </center>
 </div>
 <br/>
+
+{% load custom_tag %}
 {% if phone_data %}
 <table class="table table-hover" id="specs" border="1" width="100%">
     <tr class="danger">
@@ -423,34 +424,50 @@
                     {% if sub != '' %}
                     <li class="s_lv_1">
                         <strong>{{ sub }}: </strong>
-                        <ul>
-                            {% for subsub, v in value.items %}
-                            {% if subsub != '' %}
-                            <li class="s_lv_2">
-                                <strong>{{ subsub }}: </strong>
+                        {% if value.items != '' %}
+                            <ul>
+                            {% split value as values %}
+                            {% for v in values%}
+                                <!--<div class="hiddenRow">-->
+                                    <!--<div class="accordion-body collapse packageDetails1" id="accordion3">-->
+                                        <li class="s_lv_3">
+                                            <input type="checkbox" class="phone" value="{{ v }}"> {{ v }}
+                                        </li>
+                                    <!--</div>-->
+                                <!--</div>-->
+                            {% endfor %}
+                            </ul>
+                        {% else %}
+                            <ul>
+                                {% for subsub, v in value.items %}
+                                {% if subsub != '' %}
+                                <li class="s_lv_2">
+                                    <strong>{{ subsub }}: </strong>
+                                    <div class="hiddenRow">
+                                        <ul >
+                                            <div class="accordion-body collapse packageDetails1" id="accordion1">
+                                                <li class="s_lv_3">
+                                                    <input type="checkbox" class="phone" value="{{ v.0 }}"> {{ v.0 }}
+                                                </li>
+                                            </div >
+                                        </ul>
+                                    </div>
+                                </li>
+                                {% else %}
+                                {% for d in v %}
                                 <div class="hiddenRow">
-                                    <ul >
-                                        <div class="accordion-body collapse packageDetails1" id="accordion1">
-                                            <li class="s_lv_3">
-                                                <input type="checkbox" class="phone" value="{{ v.0 }}"> {{ v.0 }}
-                                            </li>
-                                        </div >
-                                    </ul>
+                                    <div class="accordion-body collapse packageDetails1" id="accordion2">
+                                        <li class="s_lv_3">
+                                            <input type="checkbox" class="phone" value="{{ d }}"> {{ d }}
+                                        </li>
+                                    </div>
                                 </div>
-                            </li>
-                            {% else %}
-                            {% for d in v %}
-                            <div class="hiddenRow">
-                                <div class="accordion-body collapse packageDetails1" id="accordion2">
-                                    <li class="s_lv_3">
-                                        <input type="checkbox" class="phone" value="{{ d }}"> {{ d }}
-                                    </li>
-                                </div>
-                            </div>
-                            {% endfor %}
-                            {% endif %}
-                            {% endfor %}
-                        </ul>
+                                {% endfor %}
+                                {% endif %}
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+
                     </li>
                     {% else %}
                     {% for subsub, v in value.items %}
