@@ -1,20 +1,63 @@
 import urllib
-
+import os
 import happybase
 import pandas as pd
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString, Tag
 
 import helper
+
+
+def _extract_spec_url(cate_url, spec_urls, first=True):
+    soup = BeautifulSoup(urllib.urlopen(cate_url).read(), 'html.parser')
+    makers = soup.find('div', class_='makers')
+    a_tags = makers.find_all('a')
+    for a_tag in a_tags:
+        spec_urls.append('https://www.gsmarena.com/{}'.format(a_tag.attrs['href']))
+
+    if first:
+        nav_pages = soup.find('div', class_='nav-pages')
+        if nav_pages is None:
+            return
+        a_tags = nav_pages.find_all('a')
+        for a_tag in a_tags:
+            nav_page = 'https://www.gsmarena.com/{}'.format(a_tag.attrs['href'])
+            _extract_spec_url(nav_page, spec_urls, False)
+
+
+def extract_all_spec_url(base_url):
+    soup = BeautifulSoup(urllib.urlopen(base_url).read(), 'html.parser')
+    category = soup.find('div', class_='st-text')
+    i = 0
+    a_tags = category.find_all('a')
+
+    for a_tag in a_tags:
+        cate_name = a_tag.contents[0].upper()
+        url_db_path = os.path.join('data', 'url', cate_name)
+
+        if os.path.isfile(url_db_path):
+            print('{} might be scraped already'.format(url_db_path))
+            continue
+
+        cate_url = 'https://www.gsmarena.com/{}'.format(a_tag.attrs['href'])
+        spec_urls = []
+        print('Scraping url of {}'.format(cate_url))
+
+        _extract_spec_url(cate_url, spec_urls)
+        url_db = [[cate_url, spec_url] for spec_url in spec_urls]
+        url_db = pd.DataFrame(url_db, columns=['cate_url', 'spec_url'])
+        url_db.to_csv(url_db_path, index=False)
+        i += 1
 
 
 def extract_specs(spec_url):
     soup = BeautifulSoup(urllib.urlopen(spec_url).read(), 'html.parser')
     model_name = soup.find('h1', class_='specs-phone-name-title')
-    specs_html = soup.find('div', id='specs-list')
+    # specs_html = soup.find('div', id='specs-list')
 
     specs = {}
     i = 1
-    for table in specs_html.find_all('table'):
+
+    for table in soup.findAll("table", {"cellspacing": "0"}):
         feature = table.find('th')
         if not feature:
             continue
@@ -37,6 +80,14 @@ def extract_specs(spec_url):
                     del_rows.append(curr_row)
 
             [del_row.decompose() for del_row in del_rows]
+        else:
+            for f in table.find_all('td', class_='ttl'):
+                if f.text == u'\xa0':
+                    f.string = 'Other'
+                    next_f = f.find_next_sibling()
+                    next_f_text = '^^^'.join(filter(lambda x: isinstance(x, (str, unicode)), next_f.contents)).\
+                        replace('\r\n', '').replace('\n', '')
+                    next_f.string = next_f_text
 
         feature_key = helper.normalize(feature.text)
         feature.decompose()
@@ -63,8 +114,8 @@ def insert_to_hbase(row_key, column_family, specs, batch):
 
 
 def main():
-    # pool = happybase.ConnectionPool(size=3, host='192.168.1.240')
-    pool = happybase.ConnectionPool(size=3, host='192.168.56.101')
+    pool = happybase.ConnectionPool(size=3, host='192.168.1.240')
+    # pool = happybase.ConnectionPool(size=3, host='192.168.56.101')
 
     with pool.connection() as connection:
         table = connection.table('phone_specs')
@@ -76,4 +127,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    extract_all_spec_url('https://www.gsmarena.com/makers.php3')
+    # main()

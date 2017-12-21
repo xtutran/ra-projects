@@ -81,7 +81,8 @@ def listing(request):
         limit = 100
     page = request.GET.get('page')
 
-    pool = happybase.ConnectionPool(size=3, host='192.168.56.101')
+    # pool = happybase.ConnectionPool(size=3, host='192.168.56.101')
+    pool = happybase.ConnectionPool(size=3, host='192.168.1.240')
     with pool.connection() as connection:
         table = connection.table('phone_specs')
         phone_data = {}
@@ -92,14 +93,15 @@ def listing(request):
                 phone_data[column] = phones
 
         return render(request, 'list.html', {'phones': phone_data,
-                                         'prefix': row_prefix, 'limit': limit})
+                                             'prefix': row_prefix, 'limit': limit})
 
 
 def detail(request):
     print request.POST
     if 'phone' in request.POST:
         params = request.POST.getlist('phone')
-        pool = happybase.ConnectionPool(size=3, host='192.168.56.101')
+        # pool = happybase.ConnectionPool(size=3, host='192.168.56.101')
+        pool = happybase.ConnectionPool(size=3, host='192.168.1.240')
         with pool.connection() as connection:
             table = connection.table('phone_specs')
             phone_data = {}
@@ -108,14 +110,14 @@ def detail(request):
                 column = tokens[0]
                 row_key = tokens[1]
                 data, exit_code = _get_spec(table, column, row_key)
-                phone_data[param] = sorted(data, key=sortfn)
+                phone_data[param] = sorted(data, key=sort_fn)
 
             return render(request, 'detail.html', {'phone_data': phone_data})
     else:
         return HttpResponseBadRequest('Bad request')
 
 
-def sortfn(item):
+def sort_fn(item):
     if len(global_schema) == 0:
         return item[0]
     else:

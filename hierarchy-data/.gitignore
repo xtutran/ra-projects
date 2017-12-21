@@ -2,3 +2,5 @@
 .idea/*
 specs-scraper/.idea/*
 webapp/.idea/*
+data/*
+specs-scraper/data/*
