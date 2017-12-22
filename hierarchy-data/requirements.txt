@@ -1,2 +1,8 @@
 lru-cache
 django==1.11
+date_extractor
+pint
+fuzzywuzzy
+neo4jrestclient
+quantities
+

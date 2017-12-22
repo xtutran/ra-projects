@@ -7,8 +7,9 @@ import re
 from dateutil import parser
 import time
 from neo4jrestclient.client import GraphDatabase, Q
-
-
+import quantities as pq
+import pint
+from pint import UnitRegistry, unit
 
 pool = happybase.ConnectionPool(size=3, host='172.17.240.52')
 # pool = happybase.ConnectionPool(size=3, host='127.0.0.1')
@@ -17,6 +18,8 @@ date_sep = '+'
 col_sep = '>'
 reobj = re.compile(r"Release.*", re.IGNORECASE)
 db = GraphDatabase("http://172.17.240.52:7474", username="neo4j", password="abc123")
+
+
 # db = GraphDatabase("http://localhost:7474", username="neo4j", password="abc123")
 
 
@@ -90,7 +93,6 @@ def get_phone_models(connection, table_name, row_prefix='', limit=10):
 
 
 def schema_extract(connection, table_name):
-
     column_stats = {}
     schema = {}
     rows = []
@@ -151,7 +153,6 @@ def attribute_extract(schema):
 
 def main():
     reload(sys)
-    sys.setdefaultencoding("utf-8")
 
     sourcedb = db.labels.create("Sources")
     phonedb = db.labels.create("Phones")
@@ -212,12 +213,8 @@ def main():
                                             value = db.nodes.create(name=v2)
                                             valuedb.add(value)
                                             ssfeature.relationships.create("is", value)
-            # print phones
+                                            # print phones
 
-
-import quantities as pq
-import pint
-from pint import UnitRegistry, unit
 
 if __name__ == '__main__':
     t = pq.Quantity(10, 'P')
@@ -229,8 +226,8 @@ if __name__ == '__main__':
     if type(b) is type(a):
         print True
 
-    root1= a.to_root_units()
-    root2= b.to_root_units()
+    root1 = a.to_root_units()
+    root2 = b.to_root_units()
 
     print root1.units
 
