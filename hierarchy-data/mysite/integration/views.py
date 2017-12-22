@@ -81,8 +81,8 @@ def listing(request):
         limit = 100
     page = request.GET.get('page')
 
-    # pool = happybase.ConnectionPool(size=3, host='192.168.56.101')
-    pool = happybase.ConnectionPool(size=3, host='192.168.1.240')
+    pool = happybase.ConnectionPool(size=3, host='192.168.56.101')
+    # pool = happybase.ConnectionPool(size=3, host='192.168.1.240')
     with pool.connection() as connection:
         table = connection.table('phone_specs')
         phone_data = {}
@@ -100,8 +100,8 @@ def detail(request):
     print request.POST
     if 'phone' in request.POST:
         params = request.POST.getlist('phone')
-        # pool = happybase.ConnectionPool(size=3, host='192.168.56.101')
-        pool = happybase.ConnectionPool(size=3, host='192.168.1.240')
+        pool = happybase.ConnectionPool(size=3, host='192.168.56.101')
+        # pool = happybase.ConnectionPool(size=3, host='192.168.1.240')
         with pool.connection() as connection:
             table = connection.table('phone_specs')
             phone_data = {}

@@ -207,7 +207,8 @@
 
         $(document).ready(function(){
             //extractor
-            $("input:checkbox#extractor").click(function() {
+            $("#extractor").click(function() {
+                console.log("clicked")
                 if($(this).is(":checked")) {
                     $("#show-result").prop('disabled', false);
                     var totalNumeric = 0;
@@ -352,7 +353,7 @@
 <div>
     <center>
         <form>
-            <input type="checkbox" id="extractor">Show Numeric Value
+            <input type="checkbox" id="extractor">Measurement Value
 
             <input type="button" id="show-result" value="Show Matching Results" data-toggle="collapse"
                    data-parent="#result" data-target=".packageDetails2"
@@ -409,7 +410,7 @@
     <tr class="danger">
         {% for model in phone_data.keys %}
         <th id="package1" class="accordion-toggle" data-toggle="collapse" data-parent="#specs" data-target=".packageDetails1">
-            {{ model }} <!--<i class="indicator glyphicon glyphicon-plus pull-right"></i>-->
+            {{ model }} <i class="indicator glyphicon glyphicon-plus pull-right"></i>
         </th>
         {% endfor %}
     </tr>
@@ -428,13 +429,13 @@
                             <ul>
                             {% split value as values %}
                             {% for v in values%}
-                                <!--<div class="hiddenRow">-->
-                                    <!--<div class="accordion-body collapse packageDetails1" id="accordion3">-->
+                                <div class="hiddenRow">
+                                    <div class="accordion-body collapse packageDetails1" id="accordion3">
                                         <li class="s_lv_3">
                                             <input type="checkbox" class="phone" value="{{ v }}"> {{ v }}
                                         </li>
-                                    <!--</div>-->
-                                <!--</div>-->
+                                    </div>
+                                </div>
                             {% endfor %}
                             </ul>
                         {% else %}
