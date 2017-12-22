@@ -68,14 +68,14 @@ def extract_specs(spec_url):
     specs = {}
     i = 1
 
-    for table in soup.findAll("table", {"cellspacing": "0"}):
-        feature = table.find('th')
+    for table_html in soup.findAll("table", {"cellspacing": "0"}):
+        feature = table_html.find('th')
         if not feature:
             continue
 
-        if table.find('tr', class_='tr-hover'):
+        if table_html.find('tr', class_='tr-hover'):
             del_rows = []
-            for f in table.find_all('td', class_='ttl'):
+            for f in table_html.find_all('td', class_='ttl'):
                 if f.text == u'\xa0':
                     curr_row = f.parent
                     prev_row = curr_row.find_previous_sibling()
@@ -92,7 +92,7 @@ def extract_specs(spec_url):
 
             [del_row.decompose() for del_row in del_rows]
         else:
-            for f in table.find_all('td', class_='ttl'):
+            for f in table_html.find_all('td', class_='ttl'):
                 if f.text == u'\xa0':
                     f.string = 'Other'
                     next_f = f.find_next_sibling()
@@ -106,7 +106,7 @@ def extract_specs(spec_url):
             feature_key = '{0}_{1}'.format(feature_key, i)
             i += 1
 
-        specs[feature_key] = table
+        specs[feature_key] = table_html
 
     return util.normalize(model_name.text), specs
 
