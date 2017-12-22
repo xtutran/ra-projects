@@ -1,10 +1,20 @@
-import urllib
 import os
+import urllib
+from multiprocessing import Pool
+
+import bs4
 import happybase
 import pandas as pd
-from bs4 import BeautifulSoup, NavigableString, Tag
+from bs4 import BeautifulSoup
 
 import helper
+
+print bs4.__version__
+
+
+pool = happybase.ConnectionPool(size=5, host='192.168.56.101')
+with pool.connection() as connection:
+    table = connection.table('phone_specs')
 
 
 def _extract_spec_url(cate_url, spec_urls, first=True):
@@ -32,7 +42,7 @@ def extract_all_spec_url(base_url):
 
     for a_tag in a_tags:
         cate_name = a_tag.contents[0].upper()
-        url_db_path = os.path.join('data', 'url', cate_name)
+        url_db_path = os.path.join('data', cate_name)
 
         if os.path.isfile(url_db_path):
             print('{} might be scraped already'.format(url_db_path))
@@ -107,25 +117,62 @@ def insert_to_hbase(row_key, column_family, specs, batch):
         data_row = {}
         for index, row in data.iterrows():
             key = b'{cf}:{feature}:{key}'.format(cf=column_family, feature=feature_key, key=helper.normalize(row[0]))
-            value = b'{value}'.format(value=row[1])
+            value = b'{value}'.format(value=row[1].encode('utf-8') if isinstance(row[1], (str, unicode)) else str(row[1]))
             data_row[key] = value
 
         batch.put(bytes(row_key), data_row)
 
 
+def _scrape_specs(spec_url):
+    print('Scraping: ...' + spec_url)
+    try:
+        row_key, specs = extract_specs(spec_url)
+        insert_to_hbase(row_key, 'gsmgarena', specs, table)
+        return spec_url
+    except UnicodeError and ValueError and IOError:
+        print('Error of {}'.format(spec_url))
+        return None
+
+
+def scrape_specs(cate_url_file):
+    try:
+        m_pool = Pool(4)
+        tracking = pd.read_csv(cate_url_file)
+        if 'scraped' not in tracking:
+            tracking['scraped'] = 0
+
+        spec_url_to_scrape = tracking[tracking.scraped == 0]['spec_url'].values
+        multiple_results = \
+            [m_pool.apply_async(_scrape_specs, (spec_url,)) for spec_url in spec_url_to_scrape]
+
+        processed_urls = [result.get() for result in multiple_results]
+
+        # print processed_urls
+        succeed_urls = filter(lambda x: x is not None, processed_urls)
+
+        m_pool.close()
+        # print succeed_urls
+        tracking.loc[tracking['spec_url'].isin(succeed_urls), 'scraped'] = 1
+
+        # # update
+        tracking.to_csv(cate_url_file, index=False)
+    except ValueError:
+        return
+
+
 def main():
-    pool = happybase.ConnectionPool(size=3, host='192.168.1.240')
-    # pool = happybase.ConnectionPool(size=3, host='192.168.56.101')
-
-    with pool.connection() as connection:
-        table = connection.table('phone_specs')
-
-    with table.batch(transaction=True) as b:
-        base_url = 'https://www.gsmarena.com/acer_iconia_talk_s-8306.php'
-        row_key, specs = extract_specs(base_url)
-        insert_to_hbase(row_key, 'gsmgarena', specs, b)
+    for dir_path, _, f_name in os.walk('data'):
+        f_path = os.path.join(dir_path, f_name)
+        try:
+            scrape_specs(f_path)
+        except ValueError:
+            continue
 
 
 if __name__ == '__main__':
-    extract_all_spec_url('https://www.gsmarena.com/makers.php3')
-    # main()
+
+    # just run one time to get all of specs url
+    # extract_all_spec_url('https://www.gsmarena.com/makers.php3')
+
+    # scrape_single_specs("https://www.gsmarena.com/acer_liquid_gallant_e350-4924.php")
+    main()
