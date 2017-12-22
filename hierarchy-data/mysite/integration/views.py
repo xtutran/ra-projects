@@ -90,7 +90,7 @@ def listing(request):
             phones, exit_code = _get_specs(table, column.lower(), row_prefix=row_prefix.upper(), limit=limit)
             if exit_code == 0:
                 phone_data[column] = paginate(phones, page)
-                phone_data[column] = phones
+                # phone_data[column] = phones
 
         return render(request, 'list.html', {'phones': phone_data,
                                              'prefix': row_prefix, 'limit': limit})
