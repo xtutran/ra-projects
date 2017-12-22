@@ -425,7 +425,8 @@
                     {% if sub != '' %}
                     <li class="s_lv_1">
                         <strong>{{ sub }}: </strong>
-                        {% if value.items != '' %}
+                        {% isstring value as flag %}
+                        {% if flag == 1 %}
                             <ul>
                             {% split value as values %}
                             {% for v in values%}
@@ -448,22 +449,20 @@
                                         <ul >
                                             <div class="accordion-body collapse packageDetails1" id="accordion1">
                                                 <li class="s_lv_3">
-                                                    <input type="checkbox" class="phone" value="{{ v.0 }}"> {{ v.0 }}
+                                                    <input type="checkbox" class="phone" value="{{ v }}"> {{ v }}
                                                 </li>
                                             </div >
                                         </ul>
                                     </div>
                                 </li>
                                 {% else %}
-                                {% for d in v %}
                                 <div class="hiddenRow">
                                     <div class="accordion-body collapse packageDetails1" id="accordion2">
                                         <li class="s_lv_3">
-                                            <input type="checkbox" class="phone" value="{{ d }}"> {{ d }}
+                                            <input type="checkbox" class="phone" value="{{ v }}"> {{ v }}
                                         </li>
                                     </div>
                                 </div>
-                                {% endfor %}
                                 {% endif %}
                                 {% endfor %}
                             </ul>

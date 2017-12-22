@@ -52,18 +52,20 @@ def _get_spec(table, column, row_key):
         return {}, 1
 
     spec = pd.DataFrame(row, index=[0]).T.reset_index()
+
     # spec.columns = ['feature', 'value']
     features = spec['index'].apply(lambda x: pd.Series(x.replace('{}:'.format(column.lower()), '').split(':')))
     feature_cols = map(lambda x: 'level_{}'.format(x), features.columns)
     features.columns = feature_cols
     features['value'] = spec[0]
-
-    while len(feature_cols) != 1:
-        features = features.groupby(feature_cols[:-1]).\
-            apply(lambda x: dict(zip(x[feature_cols[-1]], x.value))).\
+    features = features.fillna('')
+    i = 1
+    while i < len(feature_cols):
+        features = features.groupby(feature_cols[:-i]).\
+            apply(lambda x: dict(zip(x[feature_cols[-i]], x.value))).\
             reset_index().\
             rename(columns={0: 'value'})
-        feature_cols = features.columns[:-1]
+        i += 1
 
     return map(lambda x: tuple(x), features.values), 0
 
@@ -81,8 +83,8 @@ def listing(request):
         limit = 100
     page = request.GET.get('page')
 
-    pool = happybase.ConnectionPool(size=3, host='192.168.56.101')
-    # pool = happybase.ConnectionPool(size=3, host='192.168.1.240')
+    # pool = happybase.ConnectionPool(size=3, host='192.168.56.101')
+    pool = happybase.ConnectionPool(size=3, host='192.168.1.240')
     with pool.connection() as connection:
         table = connection.table('phone_specs')
         phone_data = {}
@@ -100,8 +102,8 @@ def detail(request):
     print request.POST
     if 'phone' in request.POST:
         params = request.POST.getlist('phone')
-        pool = happybase.ConnectionPool(size=3, host='192.168.56.101')
-        # pool = happybase.ConnectionPool(size=3, host='192.168.1.240')
+        # pool = happybase.ConnectionPool(size=3, host='192.168.56.101')
+        pool = happybase.ConnectionPool(size=3, host='192.168.1.240')
         with pool.connection() as connection:
             table = connection.table('phone_specs')
             phone_data = {}
