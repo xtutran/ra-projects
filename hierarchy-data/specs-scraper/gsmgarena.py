@@ -7,11 +7,12 @@ import happybase
 import pandas as pd
 from bs4 import BeautifulSoup
 
-import helper
+import util
 
 print bs4.__version__
 
 
+source = 'gsmgarena'
 pool = happybase.ConnectionPool(size=5, host='192.168.56.101')
 with pool.connection() as connection:
     table = connection.table('phone_specs')
@@ -42,7 +43,7 @@ def extract_all_spec_url(base_url):
 
     for a_tag in a_tags:
         cate_name = a_tag.contents[0].upper()
-        url_db_path = os.path.join('data', cate_name)
+        url_db_path = os.path.join('data', source, cate_name)
 
         if os.path.isfile(url_db_path):
             print('{} might be scraped already'.format(url_db_path))
@@ -99,7 +100,7 @@ def extract_specs(spec_url):
                         replace('\r\n', '').replace('\n', '')
                     next_f.string = next_f_text
 
-        feature_key = helper.normalize(feature.text)
+        feature_key = util.normalize(feature.text)
         feature.decompose()
         if feature_key in specs:
             feature_key = '{0}_{1}'.format(feature_key, i)
@@ -107,7 +108,7 @@ def extract_specs(spec_url):
 
         specs[feature_key] = table
 
-    return helper.normalize(model_name.text), specs
+    return util.normalize(model_name.text), specs
 
 
 def insert_to_hbase(row_key, column_family, specs, batch):
@@ -116,7 +117,7 @@ def insert_to_hbase(row_key, column_family, specs, batch):
 
         data_row = {}
         for index, row in data.iterrows():
-            key = b'{cf}:{feature}:{key}'.format(cf=column_family, feature=feature_key, key=helper.normalize(row[0]))
+            key = b'{cf}:{feature}:{key}'.format(cf=column_family, feature=feature_key, key=util.normalize(row[0]))
             value = b'{value}'.format(value=row[1].encode('utf-8') if isinstance(row[1], (str, unicode)) else str(row[1]))
             data_row[key] = value
 
@@ -127,7 +128,7 @@ def _scrape_specs(spec_url):
     print('Scraping: ...' + spec_url)
     try:
         row_key, specs = extract_specs(spec_url)
-        insert_to_hbase(row_key, 'gsmgarena', specs, table)
+        insert_to_hbase(row_key, source, specs, table)
         return spec_url
     except UnicodeError and ValueError and IOError:
         print('Error of {}'.format(spec_url))

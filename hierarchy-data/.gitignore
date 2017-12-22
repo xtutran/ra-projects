@@ -2,5 +2,6 @@
 .idea/*
 specs-scraper/.idea/*
 webapp/.idea/*
-data/*
+data/gsmgarena/*
+data/phonearena/*
 specs-scraper/data/*
