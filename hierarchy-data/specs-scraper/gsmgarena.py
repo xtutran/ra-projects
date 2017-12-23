@@ -13,7 +13,9 @@ print bs4.__version__
 
 
 source = 'gsmgarena'
-pool = happybase.ConnectionPool(size=5, host='192.168.56.101')
+# pool = happybase.ConnectionPool(size=5, host='192.168.56.101')
+pool = happybase.ConnectionPool(size=3, host='192.168.1.240')
+
 with pool.connection() as connection:
     table = connection.table('phone_specs')
 
@@ -42,8 +44,8 @@ def extract_all_spec_url(base_url):
     a_tags = category.find_all('a')
 
     for a_tag in a_tags:
-        cate_name = a_tag.contents[0].upper()
-        url_db_path = os.path.join('data', source, cate_name)
+        cate_name = a_tag.contents[0]
+        url_db_path = os.path.join('data', source, util.normalize(cate_name))
 
         if os.path.isfile(url_db_path):
             print('{} might be scraped already'.format(url_db_path))
@@ -162,10 +164,14 @@ def scrape_specs(cate_url_file):
 
 
 def main():
-    for dir_path, _, f_name in os.walk('data'):
-        f_path = os.path.join(dir_path, f_name)
+    data_path = os.path.join('data', source)
+    for data_file in os.listdir(os.path.join('data', source)):
+        cate_url_file = os.path.join(data_path, data_file)
+        if not os.path.isfile(cate_url_file):
+            continue
+
         try:
-            scrape_specs(f_path)
+            scrape_specs(cate_url_file)
         except ValueError:
             continue
 
