@@ -153,6 +153,11 @@
             return false;
         }
 
+        function round(value, decimals) {
+          return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+        }
+
+
         function findMatches(check, col_id){
             var result = Array();
             var val1 = check.val();
@@ -208,7 +213,7 @@
         $(document).ready(function(){
             //extractor
             $("#extractor").click(function() {
-                console.log("clicked")
+                //console.log("clicked")
                 if($(this).is(":checked")) {
                     $("#show-result").prop('disabled', false);
                     var totalNumeric = 0;
@@ -289,11 +294,13 @@
                 });
                 //console.log(matchingFound + "/" + matchable);
                 var total = parseInt($("div#result table tr:nth-child(3) td:nth-child(" + (col_index + 2) + ")").text());
-                var precision = matchingFound * 100 / total;
+                var precision = round(matchingFound * 100 / total, 3);
                 total_prec += precision;
                 avg_index = col_index;
                 $("div#result table tr:nth-child(5) td:nth-child(" + (col_index + 2) + ")").text(matchingFound);
                 $("div#result table tr:nth-child(6) td:nth-child(" + (col_index + 2) + ")").text(precision + "%");
+                //$("div#result table tr:nth-child(5) td:nth-child(" + (col_index + 3) + ")").text(matchingFound);
+                //$("div#result table tr:nth-child(6) td:nth-child(" + (col_index + 3) + ")").text(precision + "%");
 
             });
             //$("div#result table tr:nth-child(6) td:nth-child(" + (avg_index + 2) + ")").text(total_prec/col_count + "%");
